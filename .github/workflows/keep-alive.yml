@@ -2,8 +2,8 @@ name: Keep Pulse25 Database Alive
 
 on:
   schedule:
-    - cron: '0 12 * * 1,4'   # Every Monday and Thursday at noon UTC
-  workflow_dispatch:          # Lets you run it manually too, as a test
+    - cron: '0 12 * * 1,3,5'   # Monday, Wednesday, Friday at noon UTC
+  workflow_dispatch:
 
 jobs:
   ping:
@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Ping the database
         run: |
-          curl -X POST "${{ secrets.SUPABASE_URL }}/rest/v1/rpc/get_assessment" \
+          curl --retry 3 --retry-delay 5 --fail -X POST "${{ secrets.SUPABASE_URL }}/rest/v1/rpc/get_assessment" \
           -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
           -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
           -H "Content-Type: application/json" \
